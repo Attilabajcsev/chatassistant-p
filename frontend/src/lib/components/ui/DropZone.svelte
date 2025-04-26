@@ -108,9 +108,11 @@
                 formData.append('file', file);
             }
             
+            console.log("Uploading to endpoint:", endpoint);
             const response = await fetch(endpoint, {
                 method: 'POST',
                 body: formData,
+                credentials: 'include'  // Include cookies for authentication
             });
             
             if (!response.ok) {

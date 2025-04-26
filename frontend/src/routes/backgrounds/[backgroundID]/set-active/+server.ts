@@ -1,13 +1,15 @@
-// frontend/src/routes/documents/set-active/+server.ts
+// frontend/src/routes/backgrounds/[backgroundId]/set-active/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 
 export async function POST(event: RequestEvent) {
-  console.log("Set active documents POST request received");
+  const { backgroundId } = event.params;
+  console.log(`Set active background POST request received for ID: ${backgroundId}`);
+  
   const accessToken = event.cookies.get('accessToken');
 
   if (!accessToken) {
-    console.error('Set active documents - No access token found');
+    console.error('Set active background - No access token found');
     return json({ 
       status: 'error',
       message: 'Not authenticated' 
@@ -15,32 +17,28 @@ export async function POST(event: RequestEvent) {
   }
 
   try {
-    const body = await event.request.json();
-    const documentIds = body.document_ids;
-    
-    console.log("Setting active document IDs:", documentIds);
-
-    if (!Array.isArray(documentIds)) {
+    if (!backgroundId || isNaN(parseInt(backgroundId))) {
       return json({ 
         status: 'error',
-        message: 'Invalid document_ids format - must be an array' 
+        message: 'Invalid background ID' 
       }, { status: 400 });
     }
 
-    const response = await fetch('http://127.0.0.1:8000/api/documents/set-active/', {
+    console.log(`Setting background ID ${backgroundId} as active`);
+    
+    const response = await fetch(`http://127.0.0.1:8000/api/backgrounds/${backgroundId}/set-active/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({ document_ids: documentIds })
+      }
     });
 
-    console.log("Set active documents response status:", response.status);
+    console.log("Set active background response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Set active documents error response:', errorText);
+      console.error('Set active background error response:', errorText);
       
       return json({ 
         status: 'error',
@@ -49,15 +47,15 @@ export async function POST(event: RequestEvent) {
     }
 
     const data = await response.json();
-    console.log('Set active documents success:', data);
+    console.log('Set active background success:', data);
     
     return json({
       ...data,
       status: 'success',
-      message: 'Documents set as active successfully'
+      message: 'Background set as active successfully'
     });
   } catch (error) {
-    console.error('Set active documents error:', error);
+    console.error('Set active background error:', error);
     return json({ 
       status: 'error',
       message: `Internal server error: ${error.message}` 

@@ -1,4 +1,3 @@
-// frontend/src/lib/components/admin/DocumentManager.svelte
 <script lang="ts">
     import DropZone from "$lib/components/ui/DropZone.svelte";
     import { adminStore } from "$lib/stores/adminStore.svelte";
@@ -7,7 +6,11 @@
     let error = $state("");
     let success = $state("");
     let isLoading = $state(false);
+    let isSaving = $state(false);
     let groupedDocuments = $state({});
+    
+    // Track which documents are selected for activation
+    let selectedDocumentIds = $state([]);
     
     // Delete confirmation
     let showDeleteConfirm = $state(false);
@@ -24,18 +27,7 @@
         try {
             console.log("🔍 Fetching documents...");
             
-            // Get auth token from cookie
-            const accessToken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('accessToken='))
-                ?.split('=')[1];
-                
-            if (!accessToken) {
-                console.error("No access token found");
-                throw new Error("Authentication required");
-            }
-            
-            // Make direct fetch request to backend
+            // Make API request
             const response = await fetch('/documents', {
                 method: 'GET',
                 headers: {
@@ -44,12 +36,10 @@
                 credentials: 'include'
             });
             
-            console.log("Document fetch status:", response.status);
+            console.log("Document fetch response status:", response.status);
             
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Failed to fetch documents:", errorText);
-                throw new Error("Server returned an error");
+                throw new Error(`Server returned an error: ${response.status}`);
             }
             
             const data = await response.json();
@@ -57,16 +47,26 @@
             
             if (data && data.documents) {
                 adminStore.documents = data.documents;
+                
+                // Initialize selected documents based on active status
+                selectedDocumentIds = data.documents
+                    .filter(doc => doc.is_active)
+                    .map(doc => doc.id);
+                    
+                console.log("Selected document IDs:", selectedDocumentIds);
+                
                 groupDocuments();
             } else {
                 console.warn("No documents found in response");
                 adminStore.documents = [];
+                selectedDocumentIds = [];
                 groupedDocuments = {};
             }
         } catch (err) {
             console.error("Error in fetchDocuments:", err);
             error = "Failed to fetch documents. Please try again.";
             adminStore.documents = [];
+            selectedDocumentIds = [];
             groupedDocuments = {};
         } finally {
             isLoading = false;
@@ -96,6 +96,81 @@
         
         console.log("Grouped documents:", Object.keys(groups).length, "groups");
         groupedDocuments = groups;
+    }
+    
+    // Toggle selection of a document group
+    function toggleDocumentGroup(sourceKey) {
+        const docsInGroup = groupedDocuments[sourceKey] || [];
+        const docIds = docsInGroup.map(doc => doc.id);
+        
+        // Check if all documents in this group are already selected
+        const allSelected = docIds.every(id => selectedDocumentIds.includes(id));
+        
+        if (allSelected) {
+            // If all are selected, deselect them
+            selectedDocumentIds = selectedDocumentIds.filter(id => !docIds.includes(id));
+        } else {
+            // Otherwise, select all in this group
+            // First remove any that might be selected
+            const remaining = selectedDocumentIds.filter(id => !docIds.includes(id));
+            selectedDocumentIds = [...remaining, ...docIds];
+        }
+        
+        console.log("Updated selected document IDs:", selectedDocumentIds);
+    }
+    
+    // Check if a document group is active
+    function isDocumentGroupActive(sourceKey) {
+        const docsInGroup = groupedDocuments[sourceKey] || [];
+        // Group is active if any doc in the group is active
+        return docsInGroup.some(doc => doc.is_active);
+    }
+    
+    // Check if a document group is selected
+    function isDocumentGroupSelected(sourceKey) {
+        const docsInGroup = groupedDocuments[sourceKey] || [];
+        const docIds = docsInGroup.map(doc => doc.id);
+        // Group is selected if all docs in the group are selected
+        return docIds.length > 0 && docIds.every(id => selectedDocumentIds.includes(id));
+    }
+    
+    // Save active documents
+    async function saveActiveDocuments() {
+        isSaving = true;
+        error = "";
+        
+        try {
+            console.log("Saving active documents:", selectedDocumentIds);
+            
+            const response = await fetch('/documents/set-active', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ document_ids: selectedDocumentIds })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to set active documents: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log("Set active response:", data);
+            
+            if (data.status === 'success') {
+                success = "Active documents updated successfully!";
+                await fetchDocuments(); // Refresh to get updated active status
+            } else {
+                throw new Error(data.message || "Failed to update active documents");
+            }
+        } catch (err) {
+            console.error("Error setting active documents:", err);
+            error = typeof err === 'object' ? err.message : String(err);
+            success = "";
+        } finally {
+            isSaving = false;
+        }
     }
     
     async function handleUploadSuccess(data) {
@@ -139,9 +214,15 @@
                 throw new Error("Failed to delete document");
             }
             
-            success = `Document "${documentToDelete.source}" deleted successfully.`;
-            error = "";
-            await fetchDocuments();
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                success = `Document "${documentToDelete.source}" deleted successfully.`;
+                error = "";
+                await fetchDocuments();
+            } else {
+                throw new Error(data.message || "Failed to delete document");
+            }
         } catch (err) {
             console.error("Error deleting document:", err);
             error = "Failed to delete document. Please try again.";
@@ -208,22 +289,51 @@
     />
     
     <div class="mt-6">
-        <h3 class="text-lg font-medium mb-3">Available Documents</h3>
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-lg font-medium">Available Documents</h3>
+            <button 
+                onclick={saveActiveDocuments}
+                disabled={isSaving}
+                class="px-4 py-2 text-white text-sm rounded flex items-center"
+                style="background-color: #6256CA;"
+            >
+                {#if isSaving}
+                    <div class="mr-2 inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-r-transparent"></div>
+                {/if}
+                Save Active Documents
+            </button>
+        </div>
+        
+        <p class="text-sm text-gray-500 mb-4">
+            Select documents to make them available for the AI assistant to use when answering questions.
+        </p>
         
         {#if isLoading}
             <div class="flex justify-center py-4">
-                <div class="inline-block animate-spin rounded-full h-6 w-6 border-4 border-t-blue-500 border-r-transparent border-b-blue-500 border-l-transparent"></div>
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-4" 
+                     style="border-top-color: #6256CA; border-right-color: transparent; border-bottom-color: #00FF9C; border-left-color: transparent;"></div>
             </div>
         {:else if Object.keys(groupedDocuments).length === 0}
             <p class="text-gray-500 text-center py-4">No documents uploaded yet.</p>
         {:else}
             <div class="grid grid-cols-1 gap-4">
                 {#each Object.keys(groupedDocuments) as sourceKey}
-                    <div class="border rounded-lg overflow-hidden">
-                        <div class="flex justify-between items-center bg-gray-50 px-4 py-3 border-b">
-                            <div>
-                                <h4 class="font-medium">{sourceKey}</h4>
-                                <p class="text-sm text-gray-500">{groupedDocuments[sourceKey].length} chunks</p>
+                    <div class="border rounded-lg overflow-hidden" 
+                         style={isDocumentGroupActive(sourceKey) ? "border-color: #6256CA;" : ""}>
+                        <div class="flex justify-between items-center px-4 py-3 border-b" 
+                             style={isDocumentGroupActive(sourceKey) ? "background-color: rgba(98, 86, 202, 0.1);" : "background-color: #f9fafb;"}>
+                            <div class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    id={`group-${sourceKey}`}
+                                    checked={isDocumentGroupSelected(sourceKey)}
+                                    onclick={() => toggleDocumentGroup(sourceKey)}
+                                    class="mr-3 h-4 w-4 rounded focus:ring-purple-500 text-purple-600"
+                                />
+                                <div>
+                                    <h4 class="font-medium">{sourceKey}</h4>
+                                    <p class="text-sm text-gray-500">{groupedDocuments[sourceKey].length} chunks</p>
+                                </div>
                             </div>
                             <div class="flex gap-2">
                                 <button 
@@ -240,6 +350,7 @@
                                     <tr>
                                         <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chunk</th>
                                         <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added</th>
+                                        <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -250,6 +361,18 @@
                                             </td>
                                             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                                                 {new Date(doc.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td class="px-4 py-2 whitespace-nowrap text-sm">
+                                                {#if doc.is_active}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                                                          style="background-color: rgba(0, 255, 156, 0.2); color: #00994C;">
+                                                        Active
+                                                    </span>
+                                                {:else}
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        Inactive
+                                                    </span>
+                                                {/if}
                                             </td>
                                         </tr>
                                     {/each}
@@ -262,3 +385,20 @@
         {/if}
     </div>
 </div>
+
+<style lang="css">
+    /* Style for checkboxes */
+    input[type="checkbox"]:checked {
+        background-color: #6256CA;
+        border-color: #6256CA;
+    }
+    
+    input[type="checkbox"]:focus {
+        --tw-ring-color: rgba(98, 86, 202, 0.5);
+    }
+    
+    /* Hover effect for save button */
+    button[style*="background-color: #6256CA"]:hover {
+        background-color: #4a41a0 !important;
+    }
+</style>

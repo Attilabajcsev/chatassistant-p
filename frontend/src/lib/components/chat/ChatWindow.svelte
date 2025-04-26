@@ -15,18 +15,37 @@
         }
     ]);
     
+    // Auto-scroll to bottom whenever messages change
+    $effect(() => {
+        if (messageAreaEl && messages.length > 0) {
+            scrollToBottom();
+        }
+    });
+    
+    // Function to scroll to bottom of chat
+    function scrollToBottom() {
+        if (messageAreaEl) {
+            setTimeout(() => {
+                messageAreaEl.scrollTop = messageAreaEl.scrollHeight;
+            }, 10);
+        }
+    }
+    
     async function handleSend() {
         if (!message.trim()) return;
-        let newMessage = message
-        message = ""
+        let newMessage = message;
+        message = "";
         
         messages.push({
             role: "user",
             text: newMessage
         });
+        
+        // Set loading state
+        loading = true;
 
-        try{
-            let response =  await fetch("/chat", {
+        try {
+            let response = await fetch("/chat", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -36,34 +55,35 @@
                     message: newMessage,
                     conversation_id: conversationID
                 }),
-            })
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            let responseJSON = await response.json()
+            let responseJSON = await response.json();
             messages.push({
                 role: "agent",
                 text: responseJSON.response
             });
-            conversationID = responseJSON.conversation_id
+            conversationID = responseJSON.conversation_id;
 
-        } catch (e){
+        } catch (e) {
             messages.push({
-            role: "agent",
-            text: "Something went wrong"
-        });
+                role: "agent",
+                text: "Something went wrong"
+            });
+        } finally {
+            loading = false;
         }
     }
     
     function handleKeyDown(e: KeyboardEvent) {
-        if (e.key === "Enter" && !e.shiftKey){
+        if (e.key === "Enter" && !e.shiftKey) {
              e.preventDefault();
              handleSend();
-         }
+        }
     }
-
 </script>
 
 {#if !termsAccepted}
@@ -90,10 +110,12 @@
     </div>
 {:else}
     <div class="flex flex-col h-full overflow-hidden min-h-0 text-md" style="background-color: var(--bg-light); color: var(--text-dark);">
-        <div bind:this={messageAreaEl} class="flex-1 overflow-y-auto min-h-0 px-4 py-6 space-y-4">
+        <div bind:this={messageAreaEl} class="flex-1 overflow-y-auto min-h-0 px-4 py-6 space-y-4 message-area">
              {#each messages as msg, i (i)}
                 <div class="flex {msg.role === 'user' ? 'justify-end' : 'justify-start'}">
-                    <div class="max-w-lg px-4 py-2 rounded-lg text-md leading-relaxed break-words" style="background-color: {msg.role === 'user' ? 'var(--chat-primary, var(--color-primary))' : 'var(--bg-card)'}; color: {msg.role === 'user' ? 'var(--color-white)' : 'var(--text-dark)'};">
+                    <div class="max-w-lg px-4 py-2 rounded-lg text-md leading-relaxed break-words chat-message" 
+                         class:user-message={msg.role === 'user'}
+                         class:agent-message={msg.role === 'agent'}>
                         {@html msg.text}
                     </div>
                  </div>
@@ -104,7 +126,7 @@
                  </div>
              {/if}
         </div>
-        <div style="background-color: var(--bg-card); padding: 16px; border-top: 1px solid var(--border-light);">
+        <div class="message-input-area" style="background-color: var(--bg-card); border-top: 1px solid var(--border-light);">
              <div class="flex flex-col">
                 <textarea
                     bind:value={message}
@@ -137,8 +159,57 @@
     .overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
     .overflow-y-auto::-webkit-scrollbar-thumb { background-color: var(--border-light); border-radius: 3px; }
     
+    /* Responsive message area */
+    .flex-1 {
+        flex: 1;
+        min-height: 0;
+    }
+    
+    .message-area {
+        scroll-behavior: smooth;
+    }
+    
+    /* Message styling */
+    .chat-message {
+        max-width: 85%;
+        word-break: break-word;
+    }
+    
+    .user-message {
+        background-color: var(--chat-primary, var(--color-primary));
+        color: var(--color-white);
+    }
+    
+    .agent-message {
+        background-color: var(--bg-card);
+        color: var(--text-dark);
+    }
+    
+    /* Input area styling */
+    .message-input-area {
+        padding: 16px;
+        max-height: 35%;
+        min-height: 120px;
+    }
+    
     textarea {
         background-color: white !important;
         color: #1f2937 !important;
+        max-height: 120px;
+    }
+    
+    /* Media queries for smaller screens */
+    @media (max-width: 768px) {
+        .chat-message {
+            max-width: 90%;
+        }
+        
+        .message-input-area {
+            padding: 8px;
+        }
+        
+        textarea {
+            min-height: 60px;
+        }
     }
 </style>

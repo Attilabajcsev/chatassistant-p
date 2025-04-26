@@ -71,8 +71,8 @@
         <div class="flex space-x-2">
             <button 
                 class="py-2 px-4 text-sm font-medium transition-colors"
-                class:text-blue-600={activeSection === "general"} 
-                class:border-blue-600={activeSection === "general"}
+                class:text-[#6256CA]={activeSection === "general"} 
+                class:border-[#6256CA]={activeSection === "general"}
                 class:border-b-2={activeSection === "general"}
                 onclick={() => setActiveSection("general")}
             >
@@ -80,8 +80,8 @@
             </button>
             <button 
                 class="py-2 px-4 text-sm font-medium transition-colors"
-                class:text-blue-600={activeSection === "disclaimer"} 
-                class:border-blue-600={activeSection === "disclaimer"}
+                class:text-[#6256CA]={activeSection === "disclaimer"} 
+                class:border-[#6256CA]={activeSection === "disclaimer"}
                 class:border-b-2={activeSection === "disclaimer"}
                 onclick={() => setActiveSection("disclaimer")}
             >
@@ -89,8 +89,8 @@
             </button>
             <button 
                 class="py-2 px-4 text-sm font-medium transition-colors"
-                class:text-blue-600={activeSection === "buttons"} 
-                class:border-blue-600={activeSection === "buttons"}
+                class:text-[#6256CA]={activeSection === "buttons"} 
+                class:border-[#6256CA]={activeSection === "buttons"}
                 class:border-b-2={activeSection === "buttons"}
                 onclick={() => setActiveSection("buttons")}
             >
@@ -98,8 +98,8 @@
             </button>
             <button 
                 class="py-2 px-4 text-sm font-medium transition-colors"
-                class:text-blue-600={activeSection === "colors"} 
-                class:border-blue-600={activeSection === "colors"}
+                class:text-[#6256CA]={activeSection === "colors"} 
+                class:border-[#6256CA]={activeSection === "colors"}
                 class:border-b-2={activeSection === "colors"}
                 onclick={() => setActiveSection("colors")}
             >
@@ -186,7 +186,13 @@
          {/if}
 
          <div class="mt-6 text-right"> 
-            <button type="submit" class="btn btn-primary">Save Settings</button> 
+            <button 
+                type="submit" 
+                class="btn btn-primary"
+                style="background-color: #6256CA; color: white;"
+            >
+                Save Settings
+            </button> 
          </div>
      </form>
 </div>
@@ -223,10 +229,10 @@
         transition: all 0.2s ease; 
     }
     .btn-primary { 
-        background-color: #6256CA; 
-        color: white; 
+        background-color: #6256CA !important; 
+        color: white !important; 
     }
     .btn-primary:hover { 
-        background-color: #4a41a0; 
+        background-color: #4a41a0 !important; 
     }
 </style>

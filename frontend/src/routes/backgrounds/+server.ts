@@ -1,14 +1,13 @@
-// frontend/src/routes/documents/+server.ts
+// frontend/src/routes/backgrounds/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 
-// GET handler for listing all documents
 export async function GET(event: RequestEvent) {
-  console.log("Documents GET request received");
+  console.log("Backgrounds GET request received");
   const accessToken = event.cookies.get('accessToken');
 
   if (!accessToken) {
-    console.error('Document list - No access token found in cookies');
+    console.error('Backgrounds list - No access token found in cookies');
     return json({ 
       status: 'error',
       message: 'Not authenticated' 
@@ -16,21 +15,20 @@ export async function GET(event: RequestEvent) {
   }
 
   try {
-    console.log("Fetching documents from backend...");
+    console.log("Fetching backgrounds from backend...");
     
-    // Direct request to the backend
-    const response = await fetch('http://127.0.0.1:8000/api/documents/', {
+    const response = await fetch('http://127.0.0.1:8000/api/backgrounds/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
     });
 
-    console.log("Documents response status:", response.status);
+    console.log("Backgrounds response status:", response.status);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Documents error response:', errorText);
+      console.error('Backgrounds error response:', errorText);
       
       return json({ 
         status: 'error',
@@ -38,13 +36,12 @@ export async function GET(event: RequestEvent) {
       }, { status: response.status });
     }
 
-    // Directly parse and return the JSON response, matching the pattern used by other endpoints
     const data = await response.json();
-    console.log('Documents success - document count:', data.documents?.length || 0);
+    console.log('Backgrounds success - count:', data.backgrounds?.length || 0);
     
     return json(data);
   } catch (error) {
-    console.error('Documents API error:', error);
+    console.error('Backgrounds API error:', error);
     return json({ 
       status: 'error',
       message: `Internal server error: ${error.message}` 

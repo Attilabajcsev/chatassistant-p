@@ -195,4 +195,31 @@
             {/if}
         {/if}
     </div>
+
+    <div class="flex justify-end mt-6">
+        <button 
+            class="px-4 py-2 bg-[#6256CA] text-white rounded hover:bg-[#4a41a0]"
+            onclick={() => backgroundsApi.getBackgrounds()}
+        >
+            Refresh Backgrounds
+        </button>
+    </div>
 </div>
+
+<style>
+    /* Override input styling */
+    :global(.form-control) {
+        background-color: white !important;
+        color: #1f2937 !important;
+    }
+    
+    /* Make sure buttons have correct styling */
+    button.bg-\[\#6256CA\] {
+        background-color: #6256CA !important;
+        color: white !important;
+    }
+    
+    button.bg-\[\#6256CA\]:hover {
+        background-color: #4a41a0 !important;
+    }
+</style>
