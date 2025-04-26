@@ -1,0 +1,208 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+:root {
+    /* Colors */
+    --brand-primary: #6256CA;
+    --brand-secondary: #00FF9C;
+    --color-white: #ffffff;
+    --color-gray-light: #f8f8f8;
+    --color-gray-dark: #e1e4e8;
+    --color-text-dark: #1f2937;
+    --color-text-light: #f3f4f6;
+    --color-primary: #4B5563;
+    --color-primary-light: #6B7280;
+    --color-secondary: #5f6368;
+  
+    /* Backgrounds */
+    --bg-light: var(--color-white);
+    --bg-dark: #2d2d2d;
+    --bg-card: var(--color-gray-light);
+  
+    /* Borders */
+    --border-light: var(--color-gray-dark);
+  
+    /* Text */
+    --text-dark: var(--color-text-dark);
+    --text-light: var(--color-text-light);
+  
+    /* Shadows */
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+    /* Input/Buttons */
+    --input-bg: #f4f6f8;
+    --button-bg: var(--color-primary); /* For admin/form buttons */
+    --button-bg-hover: var(--color-primary-light);
+    
+    /* Chat button specific colors */
+    --chat-primary-color: #4B5563; /* Default for chat interface elements */
+    --chat-primary-light: #6B7280;
+    --chat-button-bg: #4B5563; /* Default for chat button */
+    --chat-button-hover: #6B7280;
+    
+    --button-text: var(--color-white);
+    --button-disabled-bg: #d1d5db;
+    --button-disabled-opacity: 0.5;
+}
+
+/* Admin panel styles */
+.admin-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-medium);
+}
+
+/* Drag and drop zone styles */
+.dropzone {
+  border: 2px dashed var(--border-light);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dropzone:hover, .dropzone.active {
+  border-color: var(--color-primary);
+  background-color: rgba(75, 85, 99, 0.05);
+}
+
+/* Background thumbnail styles */
+.bg-thumbnail {
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.bg-thumbnail:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.bg-thumbnail.active {
+  border: 2px solid var(--color-primary);
+}
+
+/* Button styles - for admin/form buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+}
+
+.btn-primary:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-gray-light);
+  color: var(--color-text-dark);
+  border: 1px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-gray-dark);
+}
+
+/* Alert styles */
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background-color: #d1fae5;
+  border: 1px solid #34d399;
+  color: #047857;
+}
+
+.alert-error {
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #b91c1c;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--bg-light);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+/* Form styles */
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--input-bg);
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-light);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.2);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Chat widget specific styles */
+.chat-widget {
+  --widget-primary: var(--chat-primary-color, var(--color-primary));
+  --widget-button: var(--chat-button-bg, #4B5563);
+  --widget-button-hover: var(--chat-button-hover, #6B7280);
+}
+
+/* Chat button specific styles */
+.chat-button-container {
+  transition: all 0.3s ease;
+}
+
+.chat-button-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.chat-window-container {
+  transition: all 0.3s ease;
+}
+
+/* Ensure admin button styles are separate from chat button styles */
+.admin-button, 
+.btn-primary,
+.admin-panel button {
+  background-color: var(--button-bg) !important;
+  color: var(--button-text) !important;
+}
+
+.admin-button:hover, 
+.btn-primary:hover,
+.admin-panel button:hover {
+  background-color: var(--button-bg-hover) !important;
+}
