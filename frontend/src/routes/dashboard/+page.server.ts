@@ -1,8 +1,10 @@
 import type { PageServerLoad } from './$types';
 import type { AdminData } from '$lib/types';
 import { redirect } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 
-const API_BASE = 'http://127.0.0.1:8000/api';
+const BACKEND_URL = env.BACKEND_URL
+const API_BASE = BACKEND_URL + '/api';
 
 // Helper functions to fetch data from API
 async function getBackgrounds(accessToken: string) {

@@ -1,8 +1,12 @@
 import { redirect } from '@sveltejs/kit';
 import { jwtDecode } from 'jwt-decode';
+import { env } from '$env/dynamic/private';
 
-const VERIFY_URL = 'http://127.0.0.1:8000/api/token/verify/';
-const REFRESH_URL = 'http://127.0.0.1:8000/api/token/refresh/';
+const BACKEND_URL = env.BACKEND_URL
+const VERIFY_URL = BACKEND_URL + '/api/token/verify/';
+const REFRESH_URL = BACKEND_URL + '/api/token/refresh/';
+
+
 
 function clearCookies(event): void {
 	event.cookies.delete("accessToken", { path: "/" });
@@ -11,7 +15,6 @@ function clearCookies(event): void {
 
 export async function handle({ event, resolve }) {
 	console.log("Hook: Checking token validity for each server request");
-
 	let accessToken = event.cookies.get("accessToken");
 	const refreshToken = event.cookies.get("refreshToken");
 

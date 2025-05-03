@@ -1,6 +1,9 @@
 // src/routes/api/chat/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {
   console.log("request recieved")
@@ -10,7 +13,7 @@ export async function POST(event: RequestEvent) {
     const body = await event.request.json();
     console.log(body)
         
-    const response = await fetch('http://127.0.0.1:8000/api/chat/', {
+    const response = await fetch(BACKEND_URL + '/api/chat/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

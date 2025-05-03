@@ -1,6 +1,9 @@
 // frontend/src/routes/documents/set-active/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {
   console.log("Set active documents POST request received");
@@ -27,7 +30,7 @@ export async function POST(event: RequestEvent) {
       }, { status: 400 });
     }
 
-    const response = await fetch('http://127.0.0.1:8000/api/documents/set-active/', {
+    const response = await fetch(BACKEND_URL + '/api/documents/set-active/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

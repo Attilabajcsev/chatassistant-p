@@ -1,1 +1,13 @@
-collect all requirements here
+Django==5.1.7
+djangorestframework==3.16.0
+dj-database-url==2.3.0
+djangorestframework_simplejwt==5.5.0
+django-cors-headers==4.7.0
+python-dotenv==1.1.0
+psycopg2-binary==2.9.10
+pillow==10.4.0
+PyPDF2==3.0.1
+openai==1.65.4
+requests==2.32.3
+numpy==1.26.4
+langchain==0.1.0

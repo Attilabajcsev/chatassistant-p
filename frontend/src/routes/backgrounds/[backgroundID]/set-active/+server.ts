@@ -1,6 +1,9 @@
 // frontend/src/routes/backgrounds/[backgroundId]/set-active/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {
   const { backgroundId } = event.params;
@@ -26,7 +29,7 @@ export async function POST(event: RequestEvent) {
 
     console.log(`Setting background ID ${backgroundId} as active`);
     
-    const response = await fetch(`http://127.0.0.1:8000/api/backgrounds/${backgroundId}/set-active/`, {
+    const response = await fetch(BACKEND_URL + `/api/backgrounds/${backgroundId}/set-active/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

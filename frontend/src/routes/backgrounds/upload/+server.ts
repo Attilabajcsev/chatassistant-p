@@ -1,6 +1,9 @@
 // frontend/src/routes/backgrounds/upload/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {
   console.log("Background upload request received at /backgrounds/upload/");
@@ -38,7 +41,7 @@ export async function POST(event: RequestEvent) {
     headers.set('Authorization', `Bearer ${accessToken}`);
   
     console.log('Background upload - Forwarding to backend API with token');
-    const response = await fetch('http://127.0.0.1:8000/api/backgrounds/upload/', {
+    const response = await fetch(BACKEND_URL + '/api/backgrounds/upload/', {
       method: 'POST',
       headers,
       body: formData

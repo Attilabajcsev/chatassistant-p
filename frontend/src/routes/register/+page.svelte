@@ -1,9 +1,9 @@
 <script lang="ts">
-
   let email = $state('');
   let password = $state('');
   let errorMessage = $state('');
   let isLoading = $state(false);
+  const BACKEND_URL = "http://backend:8000" //for now hard coded in the client
 
   async function handleSignUp() {
 
@@ -17,7 +17,7 @@
       console.log(email)
       console.log(password)
       try {
-          const response = await fetch('http://127.0.0.1:8000/api/user/register/', {
+          const response = await fetch(BACKEND_URL + '/api/user/register/', {
               method: "POST",
               headers: {
                   'Content-Type': 'application/json'

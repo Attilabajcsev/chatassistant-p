@@ -1,6 +1,9 @@
 // frontend/src/routes/documents/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 // GET handler for listing all documents
 export async function GET(event: RequestEvent) {
@@ -19,7 +22,7 @@ export async function GET(event: RequestEvent) {
     console.log("Fetching documents from backend...");
     
     // Direct request to the backend
-    const response = await fetch('http://127.0.0.1:8000/api/documents/', {
+    const response = await fetch(BACKEND_URL + '/api/documents/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`

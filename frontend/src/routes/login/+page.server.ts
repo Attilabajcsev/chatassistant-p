@@ -1,8 +1,9 @@
 import type {Actions,RequestEvent,ActionFailure,Redirect} from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
-import { transformWithEsbuild } from 'vite';
+import { env } from '$env/dynamic/private';
 
-const LOGIN_URL = 'http://127.0.0.1:8000/api/token/';
+const BACKEND_URL = env.BACKEND_URL
+const LOGIN_URL = BACKEND_URL + '/api/token/';
 
 
 export async function load({locals, cookies}){

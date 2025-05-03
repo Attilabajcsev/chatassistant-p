@@ -1,6 +1,9 @@
 // frontend/src/routes/backgrounds/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function GET(event: RequestEvent) {
   console.log("Backgrounds GET request received");
@@ -17,7 +20,7 @@ export async function GET(event: RequestEvent) {
   try {
     console.log("Fetching backgrounds from backend...");
     
-    const response = await fetch('http://127.0.0.1:8000/api/backgrounds/', {
+    const response = await fetch(BACKEND_URL + '/api/backgrounds/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`

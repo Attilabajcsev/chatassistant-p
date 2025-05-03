@@ -1,6 +1,9 @@
 // frontend/src/routes/documents/upload-pdf/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {  
   console.log("Document upload request received");
@@ -37,7 +40,7 @@ export async function POST(event: RequestEvent) {
     headers.set('Authorization', `Bearer ${accessToken}`);
 
     console.log('Document upload - Sending to backend');
-    const response = await fetch('http://127.0.0.1:8000/api/documents/upload-pdf/', {
+    const response = await fetch(BACKEND_URL + '/api/documents/upload-pdf/', {
       method: 'POST',
       headers,
       body: formData

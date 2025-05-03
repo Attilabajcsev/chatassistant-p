@@ -1,6 +1,9 @@
 // frontend/src/routes/documents/active/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 // GET handler for listing active documents
 export async function GET(event: RequestEvent) {
@@ -8,7 +11,7 @@ export async function GET(event: RequestEvent) {
   const accessToken = event.cookies.get('accessToken');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/documents/active/', {
+    const response = await fetch(BACKEND_URL + '/api/documents/active/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`

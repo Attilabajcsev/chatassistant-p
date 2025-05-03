@@ -1,12 +1,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function GET(event: RequestEvent) {
   console.log("settings GET request received")
   const accessToken = event.cookies.get('accessToken');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/settings/', {
+    const response = await fetch(BACKEND_URL + '/api/settings/', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -52,7 +55,7 @@ export async function POST(event: RequestEvent) {
     const body = await event.request.json();
     console.log(body)
         
-    const response = await fetch('http://127.0.0.1:8000/api/settings/update/', {
+    const response = await fetch(BACKEND_URL + '/api/settings/update/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

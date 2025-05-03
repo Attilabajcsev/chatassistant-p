@@ -1,6 +1,9 @@
 // frontend/src/routes/api/backgrounds/upload/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function POST(event: RequestEvent) {
 
@@ -30,7 +33,7 @@ export async function POST(event: RequestEvent) {
     const headers = new Headers();
     headers.set('Authorization', `Bearer ${accessToken}`);
   
-    const response = await fetch('http://127.0.0.1:8000/api/backgrounds/upload/', {
+    const response = await fetch(BACKEND_URL + '/api/backgrounds/upload/', {
       method: 'POST',
       headers,
       body: formData

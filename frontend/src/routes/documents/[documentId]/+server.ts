@@ -1,6 +1,9 @@
 // frontend/src/routes/documents/[documentId]/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 // DELETE handler for removing documents
 export async function DELETE(event: RequestEvent) {
@@ -26,7 +29,7 @@ export async function DELETE(event: RequestEvent) {
 
     console.log(`Deleting document with ID: ${documentId}`);
     
-    const response = await fetch(`http://127.0.0.1:8000/api/documents/${documentId}/`, {
+    const response = await fetch(BACKEND_URL + `/api/documents/${documentId}/`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`

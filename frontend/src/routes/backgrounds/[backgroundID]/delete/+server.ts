@@ -1,6 +1,9 @@
 // frontend/src/routes/backgrounds/[backgroundId]/delete/+server.ts
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
+
+const BACKEND_URL = env.BACKEND_URL
 
 export async function DELETE(event: RequestEvent) {
   const { backgroundId } = event.params;
@@ -26,7 +29,7 @@ export async function DELETE(event: RequestEvent) {
 
     console.log(`Deleting background ID: ${backgroundId}`);
     
-    const response = await fetch(`http://127.0.0.1:8000/api/backgrounds/${backgroundId}/delete/`, {
+    const response = await fetch(BACKEND_URL+ `/api/backgrounds/${backgroundId}/delete/`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`
